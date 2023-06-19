@@ -12,9 +12,9 @@ public interface ItemRepository {
 
     List<Item> searchText(String text);
 
-    Item addItem(Item item, int id);
+    Item addItem(Item item, long id);
 
-    Item updateItem(Item item);
+    Item updateItem(Item item, long id, long user);
 
-    boolean deleteItem(long id, Item item);
+    boolean deleteItem(long id);
 }

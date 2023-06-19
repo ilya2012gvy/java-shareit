@@ -1,90 +1,97 @@
 package ru.practicum.shareit.item.repository;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import ru.practicum.shareit.exception.ItemExistsException;
+import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import javax.validation.ValidationException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ItemRepositoryImpl implements ItemRepository {
     private final Map<Long, Item> items = new HashMap<>();
     private final UserRepository repository;
+    private long itemId = 0;
 
     @Override
     public Item findItemById(long id) {
+        if (!items.containsKey(id)) {
+            throw new ItemNotFoundException("Не найдено!");
+        }
         return items.get(id);
     }
 
     @Override
     public List<Item> findUserById(long id) {
         return items.values().stream()
-                .filter(item -> item.getOwner().getId() == id)
+                .filter(item -> item.getOwner() == id)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<Item> searchText(String text) {
-        String str = text.toLowerCase();
-        return items.values().stream()
-                .filter(item -> item.isAvailable()
-                        && item.getName().toLowerCase().contains(str)
-                        || item.getDescription().toLowerCase().contains(str))
-                .collect(Collectors.toList());
+        if (!text.isEmpty()) {
+            String str = text.toLowerCase();
+            return items.values().stream()
+                    .filter(item -> item.getName().toLowerCase().contains(str)
+                            || item.getDescription().toLowerCase().contains(str)
+                            && item.getAvailable())
+                    .collect(Collectors.toList());
+        }
+        return new ArrayList<>();
     }
 
     @Override
-    public Item addItem(Item item, int id) {
-        if (validation(item)) {
-            item.setOwner(mapUser().get(id));
-            long ids = item.getId();
-            item.setId(ids);
-            items.put(ids, item);
-            log.info("Предмет создан: {}", item);
-        }
+    public Item addItem(Item item, long id) {
+        validation(id);
+        item.setId(itemId + 1);
+        item.setOwner(id);
+        items.put(item.getId(), item);
+        itemId++;
+        log.info("Предмет создан: {}", item);
         return item;
     }
 
     @Override
-    public Item updateItem(Item item) {
-        if (validation(item)) {
-            items.put(item.getId(), item);
-            log.info("Предмет обновлён: {}", item);
-        }
-        return item;
-    }
-
-    @Override
-    public boolean deleteItem(long id, Item item) {
-        if (validation(item)) {
-            if (items.containsKey(item.getId())) {
-                items.remove(item.getId());
-                log.info("Пользователь удалён: {}", item);
+    public Item updateItem(Item item, long id, long user) {
+        validation(user);
+        if (items.containsKey(id)) {
+            if (item.getAvailable() == null) {
+                item.setAvailable(true);
             }
+            Item update = Item.builder()
+                    .id(id)
+                    .name(item.getName() != null ? item.getName() : items.get(id).getName())
+                    .description(item.getDescription() != null ? item.getDescription() : items.get(id).getDescription())
+                    .available(item.getAvailable() != null ? item.getAvailable() : items.get(id).getAvailable())
+                    .owner(item.getOwner() != null ? item.getOwner() : items.get(id).getOwner())
+                    .build();
+            if (!Objects.equals(items.get(id).getOwner(), user)) {
+                throw new ItemExistsException("Предмет уже существует!");
+            }
+            items.put(id, update);
+            log.info("Предмет обновлён: {}", update);
+            return update;
+        }
+        return item;
+    }
+
+    @Override
+    public boolean deleteItem(long id) {
+        if (items.containsKey(id)) {
+            items.remove(id);
+            log.info("Предмет удалён: {}", id);
         }
         return false;
     }
 
-    private List<User> mapUser() {
-        return repository.listUsers();
-    }
-
-    private boolean validation(Item item) { // Обработка ошибок
-        if (item.getName() == null || item.getName().isBlank()) {
-            throw new ValidationException("Имя не должно быть пустым, иначе будет использован логин!");
-        }
-        if (item.getDescription().length() > 200) {
-            throw new ValidationException("Не может содержать больше 200 символов!");
-        }
-        return false;
+    private void validation(long id) {
+        repository.findUserById(id);
     }
 }

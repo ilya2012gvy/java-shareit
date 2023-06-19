@@ -1,14 +1,24 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.Value;
-import ru.practicum.shareit.user.model.User;
+import lombok.Builder;
+import lombok.Data;
 
-@Value
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
+@Data
+@Builder
 public class ItemDto {
-    Long id;
-    String name;
-    String description;
-    boolean available;
-    Long request;
-    User owner;
+    private Long id;
+    @NotBlank(message = "Отсутствует название")
+    @NotEmpty
+    @NotNull
+    private String name;
+    @NotBlank(message = "Отсутствует описание")
+    @NotNull
+    private String description;
+    @NotNull
+    private Boolean available;
+    private Long request;
 }

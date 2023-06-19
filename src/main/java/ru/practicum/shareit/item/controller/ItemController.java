@@ -1,17 +1,15 @@
 package ru.practicum.shareit.item.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
-
 import java.util.List;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
+@Slf4j
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
@@ -19,33 +17,33 @@ public class ItemController {
     private final ItemService service;
 
     @GetMapping("/{id}")
-    public Item findItemById(@RequestHeader("X-Shareit-User-Id") long id) {
+    public ItemDto findItemById(@PathVariable long id) {
         return service.findItemById(id);
     }
 
     @GetMapping
-    public List<Item> findUserById(@RequestHeader("X-Shareit-User-Id") long id) {
+    public List<ItemDto> findUserById(@RequestHeader("X-Sharer-User-Id") long id) {
         return service.findUserById(id);
     }
 
     @GetMapping("/search")
-    public List<Item> searchText(String text) {
+    public List<ItemDto> searchText(@RequestParam String text) {
         return service.searchText(text);
     }
 
-    @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.CREATED)
-    public Item addItem(@RequestHeader("X-Shareit-User-Id") @Valid @RequestBody Item item, int id) {
+    @PostMapping
+    public ItemDto addItem(@Valid @RequestBody ItemDto item, @RequestHeader("X-Sharer-User-Id") long id) {
         return service.addItem(item, id);
     }
 
-    @PutMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public Item updateItem(@RequestHeader("X-Shareit-User-Id") @Valid @RequestBody Item item) {
-        return service.updateItem(item);
+    @PatchMapping("/{id}")
+    public ItemDto updateItem(@RequestBody ItemDto item, @PathVariable long id,
+                              @RequestHeader("X-Sharer-User-Id") long user) {
+        return service.updateItem(item, id, user);
     }
 
     @DeleteMapping("/{id}")
-    public boolean deleteUser(@PathVariable long id, Item item) {
-        return service.deleteItem(id, item);
+    public boolean deleteUser(@PathVariable long id) {
+        return service.deleteItem(id);
     }
 }

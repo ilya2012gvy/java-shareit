@@ -8,11 +8,11 @@ public interface UserRepository {
 
     List<User> listUsers();
 
-    Long findUserById(long id);
+    User findUserById(long id);
 
     User addUser(User user);
 
-    User updateUser(User user);
+    User updateUser(User user, long id);
 
-    boolean deleteUser(long id, User user);
+    boolean deleteUser(long id);
 }

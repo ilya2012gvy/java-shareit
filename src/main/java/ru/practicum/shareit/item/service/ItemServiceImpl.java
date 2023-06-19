@@ -2,10 +2,15 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.repository.ItemRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static ru.practicum.shareit.item.mapper.ItemMapper.toItem;
+import static ru.practicum.shareit.item.mapper.ItemMapper.toItemDto;
 
 @Service
 @RequiredArgsConstructor
@@ -13,32 +18,36 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository repository;
 
     @Override
-    public Item findItemById(long id) {
-        return repository.findItemById(id);
+    public ItemDto findItemById(long id) {
+        return toItemDto(repository.findItemById(id));
     }
 
     @Override
-    public List<Item> findUserById(long id) {
-        return repository.findUserById(id);
+    public List<ItemDto> findUserById(long id) {
+        return repository.findUserById(id).stream()
+                .map(ItemMapper::toItemDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Item> searchText(String text) {
-        return repository.searchText(text);
+    public List<ItemDto> searchText(String text) {
+        return repository.searchText(text).stream()
+                .map(ItemMapper::toItemDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Item addItem(Item item, int id) {
-        return repository.addItem(item, id);
+    public ItemDto addItem(ItemDto item, long id) {
+        return toItemDto(repository.addItem(toItem(item), id));
     }
 
     @Override
-    public Item updateItem(Item item) {
-        return repository.updateItem(item);
+    public ItemDto updateItem(ItemDto item, long id, long user) {
+        return toItemDto(repository.updateItem(toItem(item), id, user));
     }
 
     @Override
-    public boolean deleteItem(long id, Item item) {
-        return repository.deleteItem(id, item);
+    public boolean deleteItem(long id) {
+        return repository.deleteItem(id);
     }
 }

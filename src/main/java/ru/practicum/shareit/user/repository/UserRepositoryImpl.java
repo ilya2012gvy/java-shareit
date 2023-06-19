@@ -2,18 +2,17 @@ package ru.practicum.shareit.user.repository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import ru.practicum.shareit.exception.UserExistsException;
+import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.user.model.User;
 
-import javax.validation.ValidationException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Component
 public class UserRepositoryImpl implements UserRepository {
     private final Map<Long, User> users = new HashMap<>();
+    private long id = 0;
 
     @Override
     public List<User> listUsers() {
@@ -22,51 +21,51 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public Long findUserById(long id) {
-        long lastId = users.values().stream()
-                .mapToLong(User::getId)
-                .max()
-                .orElse(0);
-        return lastId + 1;
+    public User findUserById(long id) {
+        if (!users.containsKey(id)) {
+            throw new UserNotFoundException("Не найдено!");
+        }
+        return users.get(id);
     }
 
     @Override
     public User addUser(User user) {
-        if (validation(user)) {
-            long ids = findUserById(user.getId());
-            user.setId(ids);
-            users.put(ids, user);
-            log.info("Пользователь создан: {}", user);
+        if (users.values().stream()
+                .anyMatch(user1 -> user1.getEmail().equals(user.getEmail()))) {
+            throw new UserExistsException("Пользователь уже существует!");
         }
+        user.setId(id + 1);
+        users.put(user.getId(), user);
+        id++;
+        log.info("Пользователь создан: {}", user);
         return user;
     }
 
     @Override
-    public User updateUser(User user) {
-        if (validation(user)) {
-            users.put(user.getId(), user);
-            log.info("Пользователь обновлён: {}", user);
-        }
-        return user;
-    }
-
-    @Override
-    public boolean deleteUser(long id, User user) {
-        if (validation(user)) {
-            if (users.containsKey(user.getId())) {
-                users.remove(user.getId());
-                log.info("Пользователь удалён: {}", user);
+    public User updateUser(User user, long id) {
+        if (users.containsKey(id)) {
+            User update = User.builder()
+                    .id(id)
+                    .name(user.getName() != null ? user.getName() : users.get(id).getName())
+                    .email(user.getEmail() != null ? user.getEmail() : users.get(id).getEmail())
+                    .build();
+            if (users.values().stream()
+                    .anyMatch(user1 -> user1.getEmail().equals(user.getEmail())
+                            && !Objects.equals(user1.getId(), id))) {
+                throw new UserExistsException("Пользователь уже существует!");
             }
+            users.put(id, update);
+            log.info("Пользователь обновлён: {}", user);
+            return update;
         }
-        return false;
+        return user;
     }
 
-    private boolean validation(User user) { // Обработка ошибок
-        if (user.getEmail() == null || !user.getEmail().contains("@") || user.getEmail().isBlank()) {
-            throw new ValidationException("Адрес электронной почты не может быть пустым или не содержит символ: @");
-        }
-        if (user.getName() == null || user.getName().isBlank()) {
-            throw new ValidationException("Имя не должно быть пустым, иначе будет использован логин!");
+    @Override
+    public boolean deleteUser(long id) {
+        if (users.containsKey(id)) {
+            users.remove(id);
+            log.info("Пользователь удалён: {}", id);
         }
         return false;
     }

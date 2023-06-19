@@ -4,10 +4,18 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
 public interface UserMapper {
-    static User toUserDto(UserDto user) {
-        return User.builder()
+    static UserDto toUserDto(User user) {
+        return UserDto.builder()
                 .id(user.getId())
                 .name(user.getName())
                 .email(user.getEmail()).build();
+    }
+
+    static User toUser(UserDto user) {
+        return User.builder()
+                .id(user.getId() != null ? user.getId() : 0)
+                .name(user.getName())
+                .email(user.getEmail())
+                .build();
     }
 }
