@@ -23,8 +23,8 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getAllItems(long id) {
-        return repository.getAllItems(id).stream()
+    public List<ItemDto> findItemByUserId(long id) {
+        return repository.findItemByUserId(id).stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
     }

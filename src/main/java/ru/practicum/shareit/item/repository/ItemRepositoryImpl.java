@@ -27,7 +27,7 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public List<Item> getAllItems(long id) {
+    public List<Item> findItemByUserId(long id) {
         return items.values().stream()
                 .filter(item -> item.getOwner() == id)
                 .collect(Collectors.toList());
@@ -53,7 +53,6 @@ public class ItemRepositoryImpl implements ItemRepository {
         item.setOwner(id);
         items.put(item.getId(), item);
         itemId++;
-        log.info("Предмет создан: {}", item);
         return item;
     }
 
@@ -75,7 +74,6 @@ public class ItemRepositoryImpl implements ItemRepository {
                 throw new ItemNotFoundException("Предмет уже существует!");
             }
             items.put(id, update);
-            log.info("Предмет обновлён: {}", update);
             return update;
         }
         return item;
@@ -84,7 +82,6 @@ public class ItemRepositoryImpl implements ItemRepository {
     @Override
     public boolean deleteItem(long id) {
         items.remove(id);
-        log.info("Предмет удалён: {}", id);
         return items.containsKey(id);
     }
 

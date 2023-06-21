@@ -16,7 +16,6 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public List<User> findAll() {
-        log.info("Количество пользователей: {}", users.size());
         return new ArrayList<>(users.values());
     }
 
@@ -32,11 +31,11 @@ public class UserRepositoryImpl implements UserRepository {
     public User addUser(User user) {
         if (users.values().stream()
                 .anyMatch(existingUser -> existingUser.getEmail().equals(user.getEmail()))) {
+            // Могу поменять название ошибки, но Postman требует код ошибки CONFLICT
             throw new UserExistsException("Пользователь уже существует!");
         }
         user.setId(id + 1);
         users.put(user.getId(), user);
-        log.info("Пользователь создан: {}", user);
         id++;
         return user;
     }
@@ -52,10 +51,10 @@ public class UserRepositoryImpl implements UserRepository {
             if (users.values().stream()
                     .anyMatch(existingUser -> existingUser.getEmail().equals(user.getEmail())
                             && !Objects.equals(existingUser.getId(), id))) {
+                // Могу поменять название ошибки, но Postman требует код ошибки CONFLICT
                 throw new UserExistsException("Пользователь уже существует!");
             }
             users.put(id, update);
-            log.info("Пользователь обновлён: {}", user);
             return update;
         }
         return user;
@@ -64,7 +63,6 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public boolean deleteUser(long id) {
         users.remove(id);
-        log.info("Пользователь удалён: {}", id);
         return users.containsKey(id);
     }
 }

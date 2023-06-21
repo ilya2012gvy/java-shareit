@@ -8,7 +8,7 @@ public interface ItemRepository {
 
     Item findItemById(long id);
 
-    List<Item> getAllItems(long id);
+    List<Item> findItemByUserId(long id);
 
     List<Item> searchByText(String text);
 
