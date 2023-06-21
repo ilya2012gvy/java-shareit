@@ -22,13 +22,13 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> findUserById(@RequestHeader("X-Sharer-User-Id") long id) {
-        return service.findUserById(id);
+    public List<ItemDto> getAllItems(@RequestHeader("X-Sharer-User-Id") long id) {
+        return service.getAllItems(id);
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchText(@RequestParam String text) {
-        return service.searchText(text);
+    public List<ItemDto> searchByText(@RequestParam String text) {
+        return service.searchByText(text);
     }
 
     @PostMapping

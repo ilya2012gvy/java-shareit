@@ -23,15 +23,15 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> findUserById(long id) {
-        return repository.findUserById(id).stream()
+    public List<ItemDto> getAllItems(long id) {
+        return repository.getAllItems(id).stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<ItemDto> searchText(String text) {
-        return repository.searchText(text).stream()
+    public List<ItemDto> searchByText(String text) {
+        return repository.searchByText(text).stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
     }

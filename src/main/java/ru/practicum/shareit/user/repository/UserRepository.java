@@ -6,9 +6,9 @@ import java.util.List;
 
 public interface UserRepository {
 
-    List<User> listUsers();
+    List<User> findAll();
 
-    User findUserById(long id);
+    User findById(long id);
 
     User addUser(User user);
 

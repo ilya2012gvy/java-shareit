@@ -15,13 +15,13 @@ public class UserRepositoryImpl implements UserRepository {
     private long id = 0;
 
     @Override
-    public List<User> listUsers() {
+    public List<User> findAll() {
         log.info("Количество пользователей: {}", users.size());
         return new ArrayList<>(users.values());
     }
 
     @Override
-    public User findUserById(long id) {
+    public User findById(long id) {
         if (!users.containsKey(id)) {
             throw new UserNotFoundException("Не найдено!");
         }
@@ -31,13 +31,13 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public User addUser(User user) {
         if (users.values().stream()
-                .anyMatch(user1 -> user1.getEmail().equals(user.getEmail()))) {
+                .anyMatch(existingUser -> existingUser.getEmail().equals(user.getEmail()))) {
             throw new UserExistsException("Пользователь уже существует!");
         }
         user.setId(id + 1);
         users.put(user.getId(), user);
-        id++;
         log.info("Пользователь создан: {}", user);
+        id++;
         return user;
     }
 
@@ -50,8 +50,8 @@ public class UserRepositoryImpl implements UserRepository {
                     .email(user.getEmail() != null ? user.getEmail() : users.get(id).getEmail())
                     .build();
             if (users.values().stream()
-                    .anyMatch(user1 -> user1.getEmail().equals(user.getEmail())
-                            && !Objects.equals(user1.getId(), id))) {
+                    .anyMatch(existingUser -> existingUser.getEmail().equals(user.getEmail())
+                            && !Objects.equals(existingUser.getId(), id))) {
                 throw new UserExistsException("Пользователь уже существует!");
             }
             users.put(id, update);
@@ -63,10 +63,8 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public boolean deleteUser(long id) {
-        if (users.containsKey(id)) {
-            users.remove(id);
-            log.info("Пользователь удалён: {}", id);
-        }
-        return false;
+        users.remove(id);
+        log.info("Пользователь удалён: {}", id);
+        return users.containsKey(id);
     }
 }

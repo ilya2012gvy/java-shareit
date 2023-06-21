@@ -6,9 +6,9 @@ import java.util.List;
 
 public interface UserService {
 
-    List<UserDto> listUsers();
+    List<UserDto> findAll();
 
-    UserDto findUserById(long id);
+    UserDto findById(long id);
 
     UserDto addUser(UserDto user);
 

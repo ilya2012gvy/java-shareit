@@ -18,15 +18,15 @@ public class UserServiceImpl implements UserService {
     private final UserRepository repository;
 
     @Override
-    public List<UserDto> listUsers() {
-        return repository.listUsers().stream()
+    public List<UserDto> findAll() {
+        return repository.findAll().stream()
                 .map(UserMapper::toUserDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public UserDto findUserById(long id) {
-        return toUserDto(repository.findUserById(id));
+    public UserDto findById(long id) {
+        return toUserDto(repository.findById(id));
     }
 
     @Override

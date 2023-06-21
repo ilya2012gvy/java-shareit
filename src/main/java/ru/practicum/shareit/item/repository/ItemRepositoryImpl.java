@@ -3,7 +3,6 @@ package ru.practicum.shareit.item.repository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.exception.ItemExistsException;
 import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.repository.UserRepository;
@@ -28,14 +27,14 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public List<Item> findUserById(long id) {
+    public List<Item> getAllItems(long id) {
         return items.values().stream()
                 .filter(item -> item.getOwner() == id)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<Item> searchText(String text) {
+    public List<Item> searchByText(String text) {
         if (!text.isEmpty()) {
             String str = text.toLowerCase();
             return items.values().stream()
@@ -73,7 +72,7 @@ public class ItemRepositoryImpl implements ItemRepository {
                     .owner(item.getOwner() != null ? item.getOwner() : items.get(id).getOwner())
                     .build();
             if (!Objects.equals(items.get(id).getOwner(), user)) {
-                throw new ItemExistsException("Предмет уже существует!");
+                throw new ItemNotFoundException("Предмет уже существует!");
             }
             items.put(id, update);
             log.info("Предмет обновлён: {}", update);
@@ -84,14 +83,12 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public boolean deleteItem(long id) {
-        if (items.containsKey(id)) {
-            items.remove(id);
-            log.info("Предмет удалён: {}", id);
-        }
-        return false;
+        items.remove(id);
+        log.info("Предмет удалён: {}", id);
+        return items.containsKey(id);
     }
 
     private void validation(long id) {
-        repository.findUserById(id);
+        repository.findById(id);
     }
 }

@@ -8,9 +8,9 @@ public interface ItemRepository {
 
     Item findItemById(long id);
 
-    List<Item> findUserById(long id);
+    List<Item> getAllItems(long id);
 
-    List<Item> searchText(String text);
+    List<Item> searchByText(String text);
 
     Item addItem(Item item, long id);
 
