@@ -2,52 +2,142 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.dto.BookingDtoRequest;
+import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.exception.ItemNotFoundException;
+import ru.practicum.shareit.exception.UserNotFoundException;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Comment;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.repository.UserRepository;
 
+import javax.validation.ValidationException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static ru.practicum.shareit.item.mapper.ItemMapper.toItem;
-import static ru.practicum.shareit.item.mapper.ItemMapper.toItemDto;
+import static ru.practicum.shareit.booking.mapper.BookingMapper.toBookingDtoRequest;
+import static ru.practicum.shareit.item.mapper.CommentMapper.*;
+import static ru.practicum.shareit.item.mapper.ItemMapper.*;
+import static ru.practicum.shareit.user.mapper.UserMapper.toUserDto;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ItemServiceImpl implements ItemService {
-    private final ItemRepository repository;
+    private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
+    private final BookingRepository bookingRepository;
 
     @Override
-    public ItemDto findItemById(long id) {
-        return toItemDto(repository.findItemById(id));
+    @Transactional(readOnly = true)
+    public ItemDto findById(long id, long user) {
+        userRepository.findById(user).orElseThrow(() ->
+                new UserNotFoundException("ItemServiceImpl: User findById Not Found 404"));
+        Item item = itemRepository.findById(id).orElseThrow(() ->
+                new ItemNotFoundException("ItemServiceImpl: Item findById Not Found 404"));
+        BookingDtoRequest last = null;
+        BookingDtoRequest next = null;
+        if (item.getOwner().getId().equals(user)) {
+            last = toBookingDtoRequest(bookingRepository
+                    .getItemLastBooking(id, LocalDateTime.now()).orElse(null));
+            next = toBookingDtoRequest(bookingRepository
+                    .getItemNextBooking(id, LocalDateTime.now()).orElse(null));
+        }
+        List<CommentDto> comments = toListCommentDto(commentRepository.findAllByItemId(id));
+
+        return toItemDto(item, last, next, comments);
     }
 
     @Override
-    public List<ItemDto> findItemByUserId(long id) {
-        return repository.findItemByUserId(id).stream()
-                .map(ItemMapper::toItemDto)
-                .collect(Collectors.toList());
+    @Transactional(readOnly = true)
+    public List<ItemDto> getItems(long id) {
+        userRepository.findById(id).orElseThrow(() ->
+                new UserNotFoundException("ItemServiceImpl: User findById Not Found 404"));
+        List<Item> items = itemRepository.findByOwnerIdOrderByIdAsc(id);
+        List<ItemDto> itemDtoRequest = new ArrayList<>();
+
+        for (Item item : items) {
+            Long itemId = item.getId();
+            List<CommentDto> comments = toListCommentDto(commentRepository.findAllByItemId(itemId));
+
+            BookingDtoRequest last = toBookingDtoRequest(bookingRepository
+                    .getItemLastBooking(itemId, LocalDateTime.now()).orElse(null));
+            BookingDtoRequest next = toBookingDtoRequest(bookingRepository
+                    .getItemNextBooking(itemId, LocalDateTime.now()).orElse(null));
+
+            itemDtoRequest.add(toItemDto(item, last, next, comments));
+        }
+        return itemDtoRequest;
     }
 
     @Override
-    public List<ItemDto> searchByText(String text) {
-        return repository.searchByText(text).stream()
-                .map(ItemMapper::toItemDto)
-                .collect(Collectors.toList());
+    @Transactional
+    public List<ItemDto> searchByText(String text, long user) {
+        userRepository.findById(user).orElseThrow(() ->
+                new UserNotFoundException("ItemServiceImpl: User searchByText Not Found 404"));
+        if (text.isBlank()) {
+            return Collections.emptyList();
+        }
+        return toItemListDto(itemRepository.search(text));
     }
 
     @Override
+    @Transactional
     public ItemDto addItem(ItemDto item, long id) {
-        return toItemDto(repository.addItem(toItem(item), id));
+        User user = userRepository.findById(id).orElseThrow(() ->
+                new UserNotFoundException("ItemServiceImpl: User addItem Not Found 404"));
+        item.setOwner(toUserDto(user));
+        return toItemDto(itemRepository.save(toItem(item, user)), null, null, null);
     }
 
     @Override
+    @Transactional
     public ItemDto updateItem(ItemDto item, long id, long user) {
-        return toItemDto(repository.updateItem(toItem(item), id, user));
+        userRepository.findById(user).orElseThrow(() ->
+                new UserNotFoundException("ItemServiceImpl: User updateItem Not Found 404"));
+        Item items = itemRepository.findById(id).orElseThrow(() ->
+                new ItemNotFoundException("ItemServiceImpl: Item updateItem Not Found 404"));
+
+        if (item.getName() != null) {
+            items.setName(item.getName());
+        }
+        if (item.getDescription() != null) {
+            items.setDescription(item.getDescription());
+        }
+        if (item.getAvailable() != null) {
+            items.setAvailable(item.getAvailable());
+        }
+        return toItemDto(itemRepository.save(items), null, null, null);
     }
 
     @Override
-    public boolean deleteItem(long id) {
-        return repository.deleteItem(id);
+    @Transactional
+    public void deleteItem(long id) {
+        itemRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public CommentDto addComment(CommentDto comment, long itemId, long userId) {
+        Item item = itemRepository.findById(itemId).orElseThrow(() ->
+                new ValidationException("ItemServiceImpl: Item comment Bad Request 400"));
+        User author = userRepository.findById(userId).orElseThrow(() ->
+                new ValidationException("ItemServiceImpl: User comment Bad Request 400"));
+        bookingRepository.getByBookerAndItemBooking(userId, itemId, LocalDateTime.now()).orElseThrow(() ->
+                new ValidationException("ItemServiceImpl: Booking comment Bad Request 400"));
+
+        Comment comments = toComment(comment, item, author);
+
+        comments.setCreated(LocalDateTime.now());
+
+        return toCommentDto(commentRepository.save(comments));
     }
 }
