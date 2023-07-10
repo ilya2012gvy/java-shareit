@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 @AllArgsConstructor
-public class BookingDtoRequest {
+public class BookingRequestDto {
     private Long id;
     @NotNull
     @FutureOrPresent()

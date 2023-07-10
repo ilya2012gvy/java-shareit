@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.dto.BookingDtoRequest;
+import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.BookingNotFoundException;
@@ -41,15 +41,15 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public BookingDto addBooking(BookingDtoRequest bookingDtoRequest, long id) {
+    public BookingDto addBooking(BookingRequestDto bookingRequestDto, long id) {
         User user = userRepository.findById(id).orElseThrow(() ->
                 new UserNotFoundException("BookingServiceImpl: User addBookings Not Found 404"));
-        Item item = itemRepository.findById(bookingDtoRequest.getItemId()).orElseThrow(() ->
+        Item item = itemRepository.findById(bookingRequestDto.getItemId()).orElseThrow(() ->
                 new ItemNotFoundException("BookingServiceImpl: Item addBookings Not Found 404"));
 
         validGetAvailable(item);
 
-        Booking booking = toBooking(bookingDtoRequest, user, item);
+        Booking booking = toBooking(bookingRequestDto, user, item);
 
         booking.setStatus(WAITING);
 

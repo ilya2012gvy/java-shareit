@@ -3,7 +3,7 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.booking.dto.BookingDtoRequest;
+import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.exception.UserNotFoundException;
@@ -43,8 +43,8 @@ public class ItemServiceImpl implements ItemService {
                 new UserNotFoundException("ItemServiceImpl: User findById Not Found 404"));
         Item item = itemRepository.findById(id).orElseThrow(() ->
                 new ItemNotFoundException("ItemServiceImpl: Item findById Not Found 404"));
-        BookingDtoRequest last = null;
-        BookingDtoRequest next = null;
+        BookingRequestDto last = null;
+        BookingRequestDto next = null;
         if (item.getOwner().getId().equals(user)) {
             last = toBookingDtoRequest(bookingRepository
                     .getItemLastBooking(id, LocalDateTime.now()).orElse(null));
@@ -68,9 +68,9 @@ public class ItemServiceImpl implements ItemService {
             Long itemId = item.getId();
             List<CommentDto> comments = toListCommentDto(commentRepository.findAllByItemId(itemId));
 
-            BookingDtoRequest last = toBookingDtoRequest(bookingRepository
+            BookingRequestDto last = toBookingDtoRequest(bookingRepository
                     .getItemLastBooking(itemId, LocalDateTime.now()).orElse(null));
-            BookingDtoRequest next = toBookingDtoRequest(bookingRepository
+            BookingRequestDto next = toBookingDtoRequest(bookingRepository
                     .getItemNextBooking(itemId, LocalDateTime.now()).orElse(null));
 
             itemDtoRequest.add(toItemDto(item, last, next, comments));

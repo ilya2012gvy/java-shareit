@@ -37,20 +37,20 @@ public class ItemController {
 
     @PostMapping
     public ItemDto addItem(@Valid @RequestBody ItemDto item, @RequestHeader("X-Sharer-User-Id") long id) {
-        log.info("Предмет успешно создан!");
+        log.info("Предмет с id: {} успешно создан!", id);
         return service.addItem(item, id);
     }
 
     @PatchMapping("/{id}")
     public ItemDto updateItem(@RequestBody ItemDto item, @PathVariable long id,
                               @RequestHeader("X-Sharer-User-Id") long user) {
-        log.info("Предмет успешно обновлён!");
+        log.info("Предмет с id: {} успешно обновлён!", id);
         return service.updateItem(item, id, user);
     }
 
     @DeleteMapping("/{id}")
     public void deleteItem(@PathVariable long id) {
-        log.info("Предмет удалён!");
+        log.info("Предмет с id: {} удалён!", id);
         service.deleteItem(id);
     }
 

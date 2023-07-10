@@ -31,19 +31,19 @@ public class UserController {
 
     @PostMapping
     public UserDto addUser(@Valid @RequestBody UserDto user) {
-        log.info("Пользователь успешно создан!");
+        log.info("Пользователь {} успешно создан!", user);
         return service.addUser(user);
     }
 
     @PatchMapping("/{id}")
     public UserDto updateUser(@RequestBody UserDto user, @PathVariable long id) {
-        log.info("Пользователь успешно обновлён!");
+        log.info("Пользователь с id: {} успешно обновлён!", id);
         return service.updateUser(user, id);
     }
 
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable long id) {
-        log.info("Пользователь удалён!");
+        log.info("Пользователь с id: {} удалён!", id);
         service.deleteUser(id);
     }
 }

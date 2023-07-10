@@ -21,10 +21,6 @@ public class Item {
     private Boolean available;
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
+    @JoinColumn(name = "owner_id")
     private User owner;
-    /*
-     @ManyToOne(fetch = FetchType.LAZY)
-     @ToString.Exclude
-     private ItemRequest request;
-    */
 }
