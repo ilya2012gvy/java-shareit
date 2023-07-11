@@ -34,6 +34,12 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
+    public void handleBookingNotFoundException(final BookingNotFoundException e) {
+        log.info("Произошла ошибка на стороне пользователя: {}", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public void handleItemExistsException(final ItemExistsException e) {
         log.info("Предмет уже существует!: {}", e.getMessage());
     }
@@ -42,6 +48,12 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     public void handleUserExistsFoundException(final UserExistsException e) {
         log.info("Пользователь уже существует!: {}", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleStateException(final StateAndStatusException e) {
+        return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler

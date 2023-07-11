@@ -1,14 +1,20 @@
 package ru.practicum.shareit.item.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import ru.practicum.shareit.booking.dto.BookingRequestDto;
+import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Data
 @Builder
+@AllArgsConstructor
 public class ItemDto {
     private Long id;
     @NotBlank(message = "Отсутствует название")
@@ -20,5 +26,9 @@ public class ItemDto {
     private String description;
     @NotNull
     private Boolean available;
-    private Long request;
+    private ItemRequestDto request;
+    private UserDto owner;
+    private BookingRequestDto lastBooking;
+    private BookingRequestDto nextBooking;
+    private List<CommentDto> comments;
 }
