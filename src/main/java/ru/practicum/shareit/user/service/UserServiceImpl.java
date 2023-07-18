@@ -26,14 +26,15 @@ public class UserServiceImpl implements UserService {
     final Map<Long, User> addUser = new HashMap<>();
 
     @Override
+    @Transactional(readOnly = true)
     public List<UserDto> findAll() {
         return repository.findAll().stream()
                 .map(UserMapper::toUserDto)
                 .collect(Collectors.toList());
     }
 
-    @Transactional
     @Override
+    @Transactional(readOnly = true)
     public UserDto findById(long id) {
         return toUserDto(repository.findById(id).orElseThrow(() ->
                 new UserNotFoundException("UserServiceImpl: User finById Not Found 404")));
@@ -49,8 +50,8 @@ public class UserServiceImpl implements UserService {
         return toUserDto(repository.save(toUser(user)));
     }
 
-    @Transactional
     @Override
+    @Transactional
     public UserDto updateUser(UserDto user, long id) {
         user.setId(id);
         User users = repository.findById(id).orElseThrow();
@@ -64,8 +65,8 @@ public class UserServiceImpl implements UserService {
         return toUserDto(repository.save(users));
     }
 
-    @Transactional
     @Override
+    @Transactional
     public void deleteUser(long id) {
         repository.deleteById(id);
     }

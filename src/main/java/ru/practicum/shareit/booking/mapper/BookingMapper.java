@@ -18,7 +18,7 @@ public interface BookingMapper {
                 .id(booking.getId())
                 .start(booking.getStart())
                 .end(booking.getEnd())
-                .item(toItemDto(booking.getItem(), null, null, null))
+                .item(toItemDto(booking.getItem()))
                 .booker(toUserDto(booking.getBooker()))
                 .status(booking.getStatus()).build();
     }

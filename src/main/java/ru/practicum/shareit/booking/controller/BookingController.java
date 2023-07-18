@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.pageable.ConvertPageable;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -39,13 +40,17 @@ public class BookingController {
 
     @GetMapping("/owner")
     public List<BookingDto> getOwnerBookings(@RequestParam(defaultValue = "ALL") String state,
-                                             @RequestHeader("X-Sharer-User-Id") long id) {
-        return service.getOwnerBookings(state, id);
+                                             @RequestHeader("X-Sharer-User-Id") long id,
+                                             @RequestParam(required = false) Integer from,
+                                             @RequestParam(required = false) Integer size) {
+        return service.getOwnerBookings(state, id, ConvertPageable.toMakePage(from, size));
     }
 
     @GetMapping
     public List<BookingDto> getBookingBookings(@RequestParam(defaultValue = "ALL") String state,
-                                               @RequestHeader("X-Sharer-User-Id") long id) {
-        return service.getBookingBookings(state, id);
+                                               @RequestHeader("X-Sharer-User-Id") long id,
+                                               @RequestParam(required = false) Integer from,
+                                               @RequestParam(required = false) Integer size) {
+        return service.getBookingBookings(state, id, ConvertPageable.toMakePage(from, size));
     }
 }

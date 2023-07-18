@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.pageable.ConvertPageable;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -24,15 +25,19 @@ public class ItemController {
     }
 
     @GetMapping
-    List<ItemDto> getAllItems(@RequestHeader("X-Sharer-User-Id") long id) {
+    List<ItemDto> getAllItems(@RequestHeader("X-Sharer-User-Id") long id,
+                              @RequestParam(required = false) Integer from,
+                              @RequestParam(required = false) Integer size) {
         log.info("Получение списка всех вещей пользователя");
-        return service.getItems(id);
+        return service.getItems(id, ConvertPageable.toMakePage(from, size));
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchByText(@RequestParam String text, @RequestHeader("X-Sharer-User-Id") long user) {
+    public List<ItemDto> searchByText(@RequestParam String text, @RequestHeader("X-Sharer-User-Id") long user,
+                                      @RequestParam(required = false) Integer from,
+                                      @RequestParam(required = false) Integer size) {
         log.info("Поиск предмет по запросу: {}", text);
-        return service.searchByText(text, user);
+        return service.searchByText(text, user, ConvertPageable.toMakePage(from, size));
     }
 
     @PostMapping

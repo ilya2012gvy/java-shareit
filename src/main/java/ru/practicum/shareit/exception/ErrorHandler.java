@@ -35,7 +35,13 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public void handleBookingNotFoundException(final BookingNotFoundException e) {
-        log.info("Произошла ошибка на стороне пользователя: {}", e.getMessage());
+        log.info("Произошла с бронированием предмета: {}", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public void handleItemRequestNotFoundException(final ItemRequestNotFoundException e) {
+        log.info("Произошла ошибка c запросом: {}", e.getMessage());
     }
 
     @ExceptionHandler
