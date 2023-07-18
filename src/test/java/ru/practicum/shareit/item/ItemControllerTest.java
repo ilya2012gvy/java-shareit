@@ -1,16 +1,15 @@
 package ru.practicum.shareit.item;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.item.controller.ItemController;
 import ru.practicum.shareit.item.dto.CommentDto;
@@ -25,6 +24,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -32,26 +32,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.practicum.shareit.booking.status.BookingStatus.APPROVED;
 
-@ExtendWith(MockitoExtension.class)
+@WebMvcTest(controllers = ItemController.class)
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ItemControllerTest {
-    @Mock
+    @MockBean
     private ItemService service;
-    @InjectMocks
-    private ItemController controller;
-
-    private final ObjectMapper mapper = new ObjectMapper();
-
-    private MockMvc mvc;
+    private final ObjectMapper mapper;
+    private final MockMvc mvc;
     private ItemDto itemDto;
     private UserDto userDto;
-    CommentDto commentDto;
+    private CommentDto comment;
 
     @BeforeEach
     void setUp() {
-        mvc = MockMvcBuilders
-                .standaloneSetup(controller)
-                .build();
-
         itemDto = ItemDto.builder()
                 .id(1L)
                 .name("Дрель")
@@ -64,6 +57,13 @@ public class ItemControllerTest {
                 .id(1L)
                 .name("John")
                 .email("John.doe@mail.com").build();
+
+        comment = CommentDto.builder()
+                .id(1L)
+                .text("comment")
+                .item(itemDto)
+                .authorName("authorName")
+                .created(LocalDateTime.of(2023, 6, 18, 10, 0, 0)).build();
     }
 
     private ItemDto getItemDto() {
@@ -83,7 +83,7 @@ public class ItemControllerTest {
                 .bookerId(3L)
                 .status(APPROVED).build();
 
-        commentDto = CommentDto.builder()
+        CommentDto commentDto = CommentDto.builder()
                 .id(1L)
                 .text("comment")
                 .item(itemDto)
@@ -252,5 +252,22 @@ public class ItemControllerTest {
                 .andExpect(status().isOk());
 
         verify(service).deleteItem(1L);
+    }
+
+    @Test
+    void addComment() throws Exception {
+        when(service.addComment(comment, itemDto.getId(), 1L)).thenReturn(comment);
+
+        String result = mvc.perform(post("/items/1/comment")
+                        .content(mapper.writeValueAsString(comment))
+                        .header("X-Sharer-User-Id", 1L)
+                        .contentType("application/json"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+
+        assertEquals(mapper.writeValueAsString(comment), result);
+        verify(service).addComment(comment, itemDto.getId(), 1L);
     }
 }

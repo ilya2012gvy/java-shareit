@@ -33,16 +33,6 @@ public interface ItemMapper {
                 .request(ItemRequestMapper.toItemRequest(request, user)).build();
     }
 
-    static ItemDto toItemRequest(Item item) {
-        Long requestId = item.getRequest() != null ? item.getRequest().getId() : null;
-        return ItemDto.builder()
-                .id(item.getId())
-                .name(item.getName())
-                .description(item.getDescription())
-                .available(item.getAvailable())
-                .requestId(requestId).build();
-    }
-
     static List<ItemDto> toItemListDto(List<Item> item) {
         return item.stream()
                 .map(ItemMapper::toItemDto)

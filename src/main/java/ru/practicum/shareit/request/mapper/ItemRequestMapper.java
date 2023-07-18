@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public interface ItemRequestMapper {
     static ItemRequestDto toItemRequestDto(ItemRequest request) {
         List<ItemDto> items = request.getItems() == null ? null : request.getItems().stream()
-                .map(ItemMapper::toItemRequest)
+                .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
 
         return ItemRequestDto.builder()

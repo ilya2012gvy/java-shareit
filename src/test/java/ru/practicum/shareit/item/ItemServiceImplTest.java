@@ -65,13 +65,13 @@ class ItemServiceImplTest {
 
         user = User.builder()
                 .id(1L)
-                .email("Jon.doe@mail.com")
-                .name("Jon").build();
+                .name("Jon")
+                .email("Jon.doe@mail.com").build();
 
         UserDto userDto = UserDto.builder()
                 .id(2L)
-                .email("John.doe@mail.com")
-                .name("John").build();
+                .name("John")
+                .email("John.doe@mail.com").build();
 
         item = Item.builder()
                 .id(2L)
@@ -123,7 +123,7 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void getItem_whenInvoke_returnedItemDto() {
+    void findById() {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(repository.findById(anyLong())).thenReturn(Optional.of(item));
 
@@ -145,7 +145,7 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void getItems_whenInvoke_thenReturnListItemsDto() {
+    void getItems() {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(repository.findByOwnerIdOrderByIdAsc(anyLong(), any())).thenReturn(List.of(item));
         when(commentRepository.findAllByItemId(anyLong())).thenReturn(List.of(comment));
@@ -172,9 +172,9 @@ class ItemServiceImplTest {
         when(requestRepository.findById(anyLong())).thenReturn(Optional.of(itemRequest));
         when(repository.save(any())).thenReturn(toItem(itemDto, user, toItemRequestDto(itemRequest)));
 
-        ItemDto actualItemDto = service.addItem(itemDto, user.getId());
+        ItemDto actual = service.addItem(itemDto, user.getId());
 
-        assertEquals(itemDto, actualItemDto);
+        assertEquals(itemDto, actual);
         verify(repository).save(any());
     }
 
@@ -218,6 +218,12 @@ class ItemServiceImplTest {
 
         assertThrows(ItemNotFoundException.class, () -> service.updateItem(itemDto, user.getId(), itemDto.getId()));
         verify(repository, never()).save(toItem(itemDto, user, null));
+    }
+
+    @Test
+    void deleteItem() {
+        service.deleteItem(1L);
+        verify(repository, times(1)).deleteById(1L);
     }
 
     @Test

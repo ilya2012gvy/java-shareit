@@ -58,7 +58,7 @@ public class BookingServiceImplIntegrationTest {
     }
 
     @Test
-    void addBooking_whenAddBooking_thenStatusWaiting() {
+    void addBooking() {
         BookingRequestDto newBooking = BookingRequestDto.builder()
                 .itemId(saveItem.getId())
                 .start(LocalDateTime.now().plusDays(1))

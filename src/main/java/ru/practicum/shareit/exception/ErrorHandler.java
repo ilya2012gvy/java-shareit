@@ -2,13 +2,14 @@ package ru.practicum.shareit.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.validation.ValidationException;
-import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Slf4j
 @RestControllerAdvice
@@ -16,44 +17,32 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public void handleInvalidEmailException(final ValidationException e) {
-        log.info("Ошибка с полем \"%s\": {}", e.getMessage());
+    public ErrorResponse handleInvalidEmailException(final ValidationException e) {
+        return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public void handleItemNotFoundException(final ItemNotFoundException e) {
-        log.info("Произошла ошибка с предметами: {}", e.getMessage());
+    public ErrorResponse handleItemNotFoundException(final ItemNotFoundException e) {
+        return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public void handleUserNotFoundException(final UserNotFoundException e) {
-        log.info("Произошла ошибка на стороне пользователя: {}", e.getMessage());
+    public ErrorResponse handleUserNotFoundException(final UserNotFoundException e) {
+        return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public void handleBookingNotFoundException(final BookingNotFoundException e) {
-        log.info("Произошла с бронированием предмета: {}", e.getMessage());
+    public ErrorResponse handleBookingNotFoundException(final BookingNotFoundException e) {
+        return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public void handleItemRequestNotFoundException(final ItemRequestNotFoundException e) {
-        log.info("Произошла ошибка c запросом: {}", e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public void handleItemExistsException(final ItemExistsException e) {
-        log.info("Предмет уже существует!: {}", e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public void handleUserExistsFoundException(final UserExistsException e) {
-        log.info("Пользователь уже существует!: {}", e.getMessage());
+    public ErrorResponse handleItemRequestNotFoundException(final ItemRequestNotFoundException e) {
+        return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
@@ -64,21 +53,14 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public void handleThrowable(final Throwable e) {
-        log.error("Произошла непредвиденная ошибка: {}", e.getMessage());
+    public ErrorResponse handleThrowable(final Throwable e) {
+        return new ErrorResponse(e.getMessage());
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    RestErrorResponse
-    handleException(MethodArgumentNotValidException ex) {
-
-        String message = ex.getFieldErrors()
-                .stream()
-                .map(e -> " Field " + e.getField() +
-                        " Message " + e.getDefaultMessage())
-                .reduce("Errors found:", String::concat);
-        return new RestErrorResponse(HttpStatus.BAD_REQUEST.value(),
-                message, LocalDateTime.now());
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    protected ResponseEntity<ErrorResponse> handleThereIsNoSuchUserException(MethodArgumentNotValidException ex) {
+        return new ResponseEntity<>(new ErrorResponse(Objects.requireNonNull(ex.getFieldError()).getDefaultMessage()),
+                HttpStatus.BAD_REQUEST);
     }
 }

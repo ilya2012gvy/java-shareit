@@ -43,7 +43,7 @@ public class UserServiceImplIntegrationTest {
     }
 
     @Test
-    void IntegrationUserUpdate() {
+    void userUpdate() {
         em.persist(user);
         em.flush();
 
