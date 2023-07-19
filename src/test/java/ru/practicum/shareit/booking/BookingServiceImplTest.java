@@ -26,8 +26,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 import static ru.practicum.shareit.booking.status.BookingStatus.APPROVED;
@@ -42,7 +41,9 @@ public class BookingServiceImplTest {
     @Mock
     UserRepository userRepository;
     BookingService service;
+    private BookingServiceImpl bookingService;
     private User user;
+    private Item item;
     private User newUser;
     private Booking booking;
     private BookingRequestDto bookingDto;
@@ -50,6 +51,7 @@ public class BookingServiceImplTest {
     @BeforeEach
     void setUp() {
         service = new BookingServiceImpl(repository, userRepository, itemRepository);
+        bookingService = new BookingServiceImpl(repository, userRepository, itemRepository);
 
         user = User.builder()
                 .id(1L)
@@ -63,7 +65,7 @@ public class BookingServiceImplTest {
                 .items(new ArrayList<>())
                 .description("Описание запроса").build();
 
-        Item item = Item.builder()
+        item = Item.builder()
                 .id(1L)
                 .owner(user)
                 .name("Ответртка")
@@ -302,5 +304,40 @@ public class BookingServiceImplTest {
 
         verify(repository, atLeast(1))
                 .findAllByBookerIdAndStatusOrderByStartDesc(anyLong(), any(), any());
+    }
+
+    @Test
+    void validById() {
+        assertThrows(BookingNotFoundException.class, () -> bookingService.validById(booking, 99L));
+    }
+
+    @Test
+    void validItemNotFound() {
+        assertDoesNotThrow(() -> bookingService.validItemNotFound(99L, booking));
+    }
+
+    @Test
+    void validGetAvailable() {
+        assertDoesNotThrow(() -> bookingService.validGetAvailable(item));
+    }
+
+    @Test
+    void validStartBeforeEnd() {
+        assertThrows(StateAndStatusException.class, () -> bookingService.validStartBeforeEnd(booking));
+    }
+
+    @Test
+    void validStatus() {
+        assertThrows(StateAndStatusException.class, () -> bookingService.validStatus(true, booking));
+    }
+
+    @Test
+    void validApprovedNull() {
+        assertDoesNotThrow(() -> bookingService.validApprovedNull(true));
+    }
+
+    @Test
+    void validItemOwner() {
+        assertDoesNotThrow(() -> bookingService.validItemOwner(user.getId(), item));
     }
 }

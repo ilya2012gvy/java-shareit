@@ -3,7 +3,6 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.exception.UserExistsException;
 import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
@@ -45,7 +44,7 @@ public class UserServiceImpl implements UserService {
     public UserDto addUser(UserDto user) {
         if (addUser.values().stream()
                 .anyMatch(existingUser -> existingUser.getEmail().equals(user.getEmail()))) {
-            throw new UserExistsException("Пользователь уже существует!");
+            throw new UserNotFoundException("Пользователь уже существует!");
         }
         return toUserDto(repository.save(toUser(user)));
     }

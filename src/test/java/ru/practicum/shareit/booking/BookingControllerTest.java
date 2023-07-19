@@ -77,7 +77,8 @@ public class BookingControllerTest {
 
     @Test
     void findById() throws Exception {
-        when(service.findById(anyLong(), anyLong())).thenReturn(bookingDto);
+        when(service.findById(anyLong(), anyLong()))
+                .thenReturn(bookingDto);
 
         String result = mvc.perform(get("/bookings/1")
                         .header("X-Sharer-User-Id", userDto.getId()))
@@ -97,8 +98,8 @@ public class BookingControllerTest {
 
         String result = mvc.perform(post("/bookings")
                         .content(mapper.writeValueAsString(bookingRequestDto))
-                        .contentType("application/json")
-                        .header("X-Sharer-User-Id", userDto.getId()))
+                        .header("X-Sharer-User-Id", userDto.getId())
+                        .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -114,8 +115,8 @@ public class BookingControllerTest {
                 .thenReturn(bookingDto);
 
         String result = mvc.perform(patch("/bookings/1")
-                        .contentType("application/json")
                         .header("X-Sharer-User-Id", userDto.getId())
+                        .contentType("application/json")
                         .param("approved", "true"))
                 .andExpect(status().isOk())
                 .andReturn()
@@ -133,8 +134,8 @@ public class BookingControllerTest {
 
         String result = mvc.perform(get("/bookings")
                         .content(mapper.writeValueAsString(bookingRequestDto))
-                        .contentType("application/json")
-                        .header("X-Sharer-User-Id", userDto.getId()))
+                        .header("X-Sharer-User-Id", userDto.getId())
+                        .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -151,8 +152,8 @@ public class BookingControllerTest {
 
         String result = mvc.perform(get("/bookings/owner")
                         .content(mapper.writeValueAsString(bookingRequestDto))
-                        .contentType("application/json")
-                        .header("X-Sharer-User-Id", userDto.getId()))
+                        .header("X-Sharer-User-Id", userDto.getId())
+                        .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()

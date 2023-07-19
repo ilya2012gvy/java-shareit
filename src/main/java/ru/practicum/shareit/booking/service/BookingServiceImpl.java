@@ -128,14 +128,14 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    private void validById(Booking booking, Long id) {
+    public void validById(Booking booking, Long id) {
         if (id.equals(booking.getBooker().getId()) || id.equals(booking.getItem().getOwner().getId())) {
             return;
         }
         throw new BookingNotFoundException("Просмотр бронирования доступен только владельцу или клиенту");
     }
 
-    private void validItemNotFound(Long userId, Booking booking) {
+    public void validItemNotFound(Long userId, Booking booking) {
         if (!booking.getItem().getId().equals(userId)) {
             return;
         }
@@ -143,33 +143,33 @@ public class BookingServiceImpl implements BookingService {
 
     }
 
-    private void validGetAvailable(Item item) {
+    public void validGetAvailable(Item item) {
         if (item.getAvailable()) {
             return;
         }
         throw new ValidationException("Предмет недоступен для бронирования!");
     }
 
-    private void validStartBeforeEnd(Booking booking) {
+    public void validStartBeforeEnd(Booking booking) {
         if (booking.getEnd().isAfter(booking.getStart())) {
             return;
         }
         throw new StateAndStatusException("Дата старта должна быть рньше даты окончания!");
     }
 
-    private void validStatus(Boolean approved, Booking booking) {
+    public void validStatus(Boolean approved, Booking booking) {
         if (approved && booking.getStatus().equals(APPROVED)) {
             throw new StateAndStatusException("Статус APPROVED не может быть создан");
         }
     }
 
-    private void validApprovedNull(Boolean approved) {
+    public void validApprovedNull(Boolean approved) {
         if (approved == null) {
             throw new ValidationException("Не задано действие");
         }
     }
 
-    private void validItemOwner(Long userId, Item item) {
+    public void validItemOwner(Long userId, Item item) {
         if (item.getOwner().getId().equals(userId)) {
             return;
         }

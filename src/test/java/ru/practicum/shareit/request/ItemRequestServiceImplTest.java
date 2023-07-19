@@ -18,6 +18,7 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -64,6 +65,16 @@ public class ItemRequestServiceImplTest {
 
     @Test
     void findById() {
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+        when(repository.findById(anyLong())).thenReturn(Optional.of(itemRequest));
+
+        ItemRequestDto newItemRequestDto = service.findById(user.getId(), itemRequest.getId());
+
+        assertEquals(newItemRequestDto.getId(), itemRequest.getId());
+    }
+
+    @Test
+    void findByIdNotFound() {
         when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class, () -> service.findById(itemRequest.getId(), user.getId()));
@@ -72,6 +83,17 @@ public class ItemRequestServiceImplTest {
 
     @Test
     void getAllItemRequests() {
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+        when(repository.findByIdNot(anyLong(), any())).thenReturn(List.of(itemRequest));
+
+        List<ItemRequestDto> newItemRequestDtoList = service.getAllItemRequests(user.getId(), Pageable.unpaged());
+
+        assertEquals(newItemRequestDtoList.size(), 1);
+        assertEquals(newItemRequestDtoList.get(0).getId(), itemRequest.getId());
+    }
+
+    @Test
+    void getAllItemRequestsNotFound() {
         when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class, () -> service.getAllItemRequests(itemRequest.getId(), Pageable.unpaged()));
@@ -80,6 +102,17 @@ public class ItemRequestServiceImplTest {
 
     @Test
     void getItemRequest() {
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+        when(repository.findByRequestorIdOrderByIdDesc(user.getId())).thenReturn(List.of(itemRequest));
+
+        List<ItemRequestDto> itemListRequest = service.getItemRequest(user.getId());
+
+        assertEquals(itemListRequest.size(), 1);
+        assertEquals(itemListRequest.get(0).getId(), itemRequest.getId());
+    }
+
+    @Test
+    void getItemRequestUserNotFound() {
         when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class, () -> service.getItemRequest(itemRequest.getId()));
@@ -87,7 +120,7 @@ public class ItemRequestServiceImplTest {
     }
 
     @Test
-    void getItemRequestNotDF() {
+    void getItemRequestNotFound() {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(repository.findById(anyLong())).thenReturn(Optional.empty());
 
