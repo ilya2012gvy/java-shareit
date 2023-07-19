@@ -74,20 +74,20 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    void getItemLastBooking_whenInvoke_ReturnedOnlyLastBooking() {
+    void getItemLastBooking() {
         Optional<Booking> booking = bookingRepository.getItemLastBooking(saveItem.getId(), LocalDateTime.now());
         assertEquals(booking.get().getId(), lastBooking.getId());
     }
 
     @Test
-    void getByBookerAndItemPastApprovedBooking_whenInvoke_ReturnedOnlyPastBooking() {
-        Optional<Booking> booking = bookingRepository.getByBookerAndItemBooking(saveUser.getId(), saveItem.getId(), LocalDateTime.now());
-        assertEquals(booking.get().getId(), lastBooking.getId());
+    void getItemNextBooking() {
+        Optional<Booking> booking = bookingRepository.getItemNextBooking(saveItem.getId(), LocalDateTime.now());
+        assertEquals(booking.get().getId(), nextBooking.getId());
     }
 
     @Test
-    void getItemNextBooking_whenInvoke_ReturnedOnlyNextBooking() {
-        Optional<Booking> booking = bookingRepository.getItemNextBooking(saveItem.getId(), LocalDateTime.now());
-        assertEquals(booking.get().getId(), nextBooking.getId());
+    void getByBookerAndItemBooking() {
+        Optional<Booking> booking = bookingRepository.getByBookerAndItemBooking(saveUser.getId(), saveItem.getId(), LocalDateTime.now());
+        assertEquals(booking.get().getId(), lastBooking.getId());
     }
 }

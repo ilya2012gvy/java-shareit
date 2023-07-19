@@ -92,7 +92,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void updateUser_whenUserNotFound_thenNotFoundException() {
+    void updateUserNotFound() {
         when(repository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class, () -> service.findById(update.getId()));
