@@ -26,16 +26,16 @@ public class ItemController {
 
     @GetMapping
     List<ItemDto> getAllItems(@RequestHeader("X-Sharer-User-Id") long id,
-                              @RequestParam(required = false) Integer from,
-                              @RequestParam(required = false) Integer size) {
+                              @RequestParam(defaultValue = "0") Integer from,
+                              @RequestParam(defaultValue = "10") Integer size) {
         log.info("Получение списка всех вещей пользователя");
         return service.getItems(id, ConvertPageable.toMakePage(from, size));
     }
 
     @GetMapping("/search")
     public List<ItemDto> searchByText(@RequestParam String text, @RequestHeader("X-Sharer-User-Id") long user,
-                                      @RequestParam(required = false) Integer from,
-                                      @RequestParam(required = false) Integer size) {
+                                      @RequestParam(defaultValue = "0") Integer from,
+                                      @RequestParam(defaultValue = "10") Integer size) {
         log.info("Поиск предмет по запросу: {}", text);
         return service.searchByText(text, user, ConvertPageable.toMakePage(from, size));
     }
