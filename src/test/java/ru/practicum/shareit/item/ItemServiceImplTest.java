@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.ItemNotFoundException;
+import ru.practicum.shareit.exception.ItemRequestNotFoundException;
 import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -176,6 +177,15 @@ class ItemServiceImplTest {
 
         assertEquals(itemDto, actual);
         verify(repository).save(any());
+    }
+
+    @Test
+    void addItemNotFoundRequest() {
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+        when(requestRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(ItemRequestNotFoundException.class, () -> service.addItem(itemDto, user.getId()));
+        verify(repository, never()).save(toItem(itemDto, user, null));
     }
 
     @Test
