@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -81,56 +82,60 @@ public class BookingServiceImpl implements BookingService {
         return toBookingDto(bookingRepository.save(booking));
     }
 
-    public List<BookingDto> getOwnerBookings(String state, long id) {
+    @Override
+    @Transactional(readOnly = true)
+    public List<BookingDto> getOwnerBookings(String state, long id, Pageable page) {
         userRepository.findById(id).orElseThrow(() ->
                 new UserNotFoundException("BookingServiceImpl: User getBookingBookings Not Found 404"));
         switch (state) {
             case "ALL":
-                return toBookingListDto(bookingRepository.findAllByItemOwnerIdOrderByStartDesc(id));
+                return toBookingListDto(bookingRepository.findAllByItemOwnerIdOrderByStartDesc(id, page));
             case "CURRENT":
-                return toBookingListDto(bookingRepository.findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(id, LocalDateTime.now(), LocalDateTime.now()));
+                return toBookingListDto(bookingRepository.findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(id, LocalDateTime.now(), LocalDateTime.now(), page));
             case "PAST":
-                return toBookingListDto(bookingRepository.findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(id, LocalDateTime.now()));
+                return toBookingListDto(bookingRepository.findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(id, LocalDateTime.now(), page));
             case "FUTURE":
-                return toBookingListDto(bookingRepository.findAllByItemOwnerIdAndStartAfterOrderByStartDesc(id, LocalDateTime.now()));
+                return toBookingListDto(bookingRepository.findAllByItemOwnerIdAndStartAfterOrderByStartDesc(id, LocalDateTime.now(), page));
             case "WAITING":
-                return toBookingListDto(bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(id, WAITING));
+                return toBookingListDto(bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(id, WAITING, page));
             case "REJECTED":
-                return toBookingListDto(bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(id, REJECTED));
+                return toBookingListDto(bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(id, REJECTED, page));
             default:
                 throw new StateAndStatusException("Unknown state: UNSUPPORTED_STATUS");
         }
     }
 
-    public List<BookingDto> getBookingBookings(String state, long id) {
+    @Override
+    @Transactional(readOnly = true)
+    public List<BookingDto> getBookingBookings(String state, long id, Pageable page) {
         userRepository.findById(id).orElseThrow(() ->
                 new UserNotFoundException("BookingServiceImpl: User getBookingBookings Not Found 404"));
         switch (state) {
             case "ALL":
-                return toBookingListDto(bookingRepository.findAllByBookerIdOrderByStartDesc(id));
+                return toBookingListDto(bookingRepository.findAllByBookerIdOrderByStartDesc(id, page));
             case "CURRENT":
-                return toBookingListDto(bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(id, LocalDateTime.now(), LocalDateTime.now()));
+                return toBookingListDto(bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(id, LocalDateTime.now(), LocalDateTime.now(), page));
             case "PAST":
-                return toBookingListDto(bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(id, LocalDateTime.now()));
+                return toBookingListDto(bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(id, LocalDateTime.now(), page));
             case "FUTURE":
-                return toBookingListDto(bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(id, LocalDateTime.now()));
+                return toBookingListDto(bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(id, LocalDateTime.now(), page));
             case "WAITING":
-                return toBookingListDto(bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(id, WAITING));
+                return toBookingListDto(bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(id, WAITING, page));
             case "REJECTED":
-                return toBookingListDto(bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(id, REJECTED));
+                return toBookingListDto(bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(id, REJECTED, page));
             default:
                 throw new StateAndStatusException("Unknown state: UNSUPPORTED_STATUS");
         }
     }
 
-    private void validById(Booking booking, Long id) {
+    public void validById(Booking booking, Long id) {
         if (id.equals(booking.getBooker().getId()) || id.equals(booking.getItem().getOwner().getId())) {
             return;
         }
         throw new BookingNotFoundException("Просмотр бронирования доступен только владельцу или клиенту");
     }
 
-    private void validItemNotFound(Long userId, Booking booking) {
+    public void validItemNotFound(Long userId, Booking booking) {
         if (!booking.getItem().getId().equals(userId)) {
             return;
         }
@@ -138,33 +143,33 @@ public class BookingServiceImpl implements BookingService {
 
     }
 
-    private void validGetAvailable(Item item) {
+    public void validGetAvailable(Item item) {
         if (item.getAvailable()) {
             return;
         }
         throw new ValidationException("Предмет недоступен для бронирования!");
     }
 
-    private void validStartBeforeEnd(Booking booking) {
+    public void validStartBeforeEnd(Booking booking) {
         if (booking.getEnd().isAfter(booking.getStart())) {
             return;
         }
         throw new StateAndStatusException("Дата старта должна быть рньше даты окончания!");
     }
 
-    private void validStatus(Boolean approved, Booking booking) {
+    public void validStatus(Boolean approved, Booking booking) {
         if (approved && booking.getStatus().equals(APPROVED)) {
             throw new StateAndStatusException("Статус APPROVED не может быть создан");
         }
     }
 
-    private void validApprovedNull(Boolean approved) {
+    public void validApprovedNull(Boolean approved) {
         if (approved == null) {
             throw new ValidationException("Не задано действие");
         }
     }
 
-    private void validItemOwner(Long userId, Item item) {
+    public void validItemOwner(Long userId, Item item) {
         if (item.getOwner().getId().equals(userId)) {
             return;
         }

@@ -13,7 +13,7 @@ public interface UserMapper {
 
     static User toUser(UserDto user) {
         return User.builder()
-                .id(user.getId() != null ? user.getId() : 0)
+                .id(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())
                 .build();
