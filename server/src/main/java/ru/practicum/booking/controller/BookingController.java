@@ -8,7 +8,6 @@ import ru.practicum.booking.dto.BookingRequestDto;
 import ru.practicum.booking.service.BookingService;
 import ru.practicum.pageable.ConvertPageable;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @Slf4j
@@ -25,7 +24,7 @@ public class BookingController {
     }
 
     @PostMapping
-    public BookingDto addBooking(@Valid @RequestBody BookingRequestDto booking,
+    public BookingDto addBooking(@RequestBody BookingRequestDto booking,
                                  @RequestHeader("X-Sharer-User-Id") long id) {
         log.info("Бронирование предмета с  id: {}", id);
         return service.addBooking(booking, id);

@@ -7,9 +7,6 @@ import lombok.NoArgsConstructor;
 import ru.practicum.booking.dto.BookingRequestDto;
 import ru.practicum.user.dto.UserDto;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
@@ -18,14 +15,8 @@ import java.util.List;
 @AllArgsConstructor
 public class ItemDto {
     private Long id;
-    @NotBlank(message = "Отсутствует название")
-    @NotEmpty
-    @NotNull
     private String name;
-    @NotBlank(message = "Отсутствует описание")
-    @NotNull
     private String description;
-    @NotNull
     private Boolean available;
     private Long requestId;
     private UserDto owner;

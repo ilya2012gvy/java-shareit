@@ -8,7 +8,6 @@ import ru.practicum.item.dto.ItemDto;
 import ru.practicum.item.service.ItemService;
 import ru.practicum.pageable.ConvertPageable;
 
-import javax.validation.Valid;
 import java.util.List;
 
 
@@ -42,7 +41,7 @@ public class ItemController {
     }
 
     @PostMapping
-    public ItemDto addItem(@Valid @RequestBody ItemDto item, @RequestHeader("X-Sharer-User-Id") long id) {
+    public ItemDto addItem(@RequestBody ItemDto item, @RequestHeader("X-Sharer-User-Id") long id) {
         log.info("Предмет с id: {} успешно создан!", id);
         return service.addItem(item, id);
     }
@@ -61,7 +60,7 @@ public class ItemController {
     }
 
     @PostMapping("/{itemId}/comment")
-    public CommentDto addComment(@Valid @RequestBody CommentDto comment, @PathVariable long itemId,
+    public CommentDto addComment(@RequestBody CommentDto comment, @PathVariable long itemId,
                                  @RequestHeader("X-Sharer-User-Id") long userId) {
         log.info("Комментарий к предмету: {} создан!", itemId);
         return service.addComment(comment, itemId, userId);

@@ -1,5 +1,6 @@
 package ru.practicum.booking;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,9 +15,11 @@ import java.time.LocalDateTime;
 public class BookingDto {
     @NotNull
     @FutureOrPresent()
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime start;
     @NotNull
     @FutureOrPresent()
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime end;
     @NotNull
     private Long itemId;

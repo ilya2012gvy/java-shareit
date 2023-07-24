@@ -7,7 +7,6 @@ import ru.practicum.pageable.ConvertPageable;
 import ru.practicum.request.dto.ItemRequestDto;
 import ru.practicum.request.service.ItemRequestService;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @Slf4j
@@ -38,7 +37,7 @@ public class ItemRequestController {
     }
 
     @PostMapping
-    public ItemRequestDto addItemRequest(@Valid @RequestBody ItemRequestDto request,
+    public ItemRequestDto addItemRequest(@RequestBody ItemRequestDto request,
                                          @RequestHeader("X-Sharer-User-Id") long id) {
         log.info("Создание запроса по id: {}", id);
         return service.addItemRequest(request, id);
