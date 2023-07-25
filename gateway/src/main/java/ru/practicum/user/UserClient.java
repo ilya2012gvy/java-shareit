@@ -11,7 +11,7 @@ import ru.practicum.client.BaseClient;
 
 @Service
 public class UserClient extends BaseClient {
-    private static final String API_PREFIX = "/items";
+    private static final String API_PREFIX = "/users";
 
     @Autowired
     public UserClient(@Value("${shareit-server.url}") String serverUrl, RestTemplateBuilder builder) {
@@ -39,7 +39,7 @@ public class UserClient extends BaseClient {
         return patch("/" + id, user);
     }
 
-    public void deleteUser(long id) {
-        delete("/" + id);
+    public ResponseEntity<Object> deleteUser(long id) {
+        return delete("/" + id);
     }
 }

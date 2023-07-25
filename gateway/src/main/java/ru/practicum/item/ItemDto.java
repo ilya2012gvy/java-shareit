@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.user.UserDto;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
@@ -24,5 +25,6 @@ public class ItemDto {
     private String description;
     @NotNull
     private Boolean available;
+    private UserDto owner;
     private Long requestId;
 }

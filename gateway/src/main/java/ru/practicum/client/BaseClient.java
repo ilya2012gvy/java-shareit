@@ -39,6 +39,14 @@ public class BaseClient {
         return makeAndSendRequest(HttpMethod.POST, path, userId, parameters, body);
     }
 
+    protected <T> ResponseEntity<Object> put(String path, long userId, T body) {
+        return put(path, userId, null, body);
+    }
+
+    protected <T> ResponseEntity<Object> put(String path, long userId, @Nullable Map<String, Object> parameters, T body) {
+        return makeAndSendRequest(HttpMethod.PUT, path, userId, parameters, body);
+    }
+
     protected <T> ResponseEntity<Object> patch(String path, T body) {
         return patch(path, null, null, body);
     }
@@ -59,33 +67,46 @@ public class BaseClient {
         return delete(path, null, null);
     }
 
+    protected ResponseEntity<Object> delete(String path, long userId) {
+        return delete(path, userId, null);
+    }
+
     protected ResponseEntity<Object> delete(String path, Long userId, @Nullable Map<String, Object> parameters) {
         return makeAndSendRequest(HttpMethod.DELETE, path, userId, parameters, null);
     }
 
-    private <T> ResponseEntity<Object> makeAndSendRequest(HttpMethod method, String path, Long userId, @Nullable Map<String, Object> parameters, @Nullable T body) {
+    private <T> ResponseEntity<Object> makeAndSendRequest(
+            HttpMethod method,
+            String path,
+            Long userId,
+            @Nullable Map<String, Object> parameters,
+            @Nullable T body
+    ) {
         HttpEntity<T> requestEntity = new HttpEntity<>(body, defaultHeaders(userId));
+        ResponseEntity<Object> response;
 
-        ResponseEntity<Object> shareitServerResponse;
         try {
             if (parameters != null) {
-                shareitServerResponse = rest.exchange(path, method, requestEntity, Object.class, parameters);
+                response = rest.exchange(path, method, requestEntity, Object.class, parameters);
             } else {
-                shareitServerResponse = rest.exchange(path, method, requestEntity, Object.class);
+                response = rest.exchange(path, method, requestEntity, Object.class);
             }
         } catch (HttpStatusCodeException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsByteArray());
         }
-        return prepareGatewayResponse(shareitServerResponse);
+
+        return prepareGatewayResponse(response);
     }
 
     private HttpHeaders defaultHeaders(Long userId) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+
         if (userId != null) {
             headers.set("X-Sharer-User-Id", String.valueOf(userId));
         }
+
         return headers;
     }
 

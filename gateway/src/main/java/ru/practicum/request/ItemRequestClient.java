@@ -13,7 +13,7 @@ import java.util.Map;
 
 @Service
 public class ItemRequestClient extends BaseClient {
-    private static final String API_PREFIX = "/items";
+    private static final String API_PREFIX = "/requests";
 
     @Autowired
     public ItemRequestClient(@Value("${shareit-server.url}") String serverUrl, RestTemplateBuilder builder) {
@@ -34,11 +34,11 @@ public class ItemRequestClient extends BaseClient {
                 "from", from,
                 "size", size
         );
-        return get("/all?from={from}&size={size}", id, parameters);
+        return get("/all", id, parameters);
     }
 
     public ResponseEntity<Object> getItemRequest(long id) {
-        return get("/" + id);
+        return get("", id);
     }
 
     public ResponseEntity<Object> addItemRequest(ItemRequestDto request, long id) {

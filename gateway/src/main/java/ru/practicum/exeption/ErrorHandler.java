@@ -8,28 +8,14 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import javax.validation.ValidationException;
 import java.util.Objects;
 
 @Slf4j
 @RestControllerAdvice
 public class ErrorHandler {
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleInvalidEmailException(final ValidationException e) {
-        return new ErrorResponse(e.getMessage());
-    }
-
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleStateException(final StateAndStatusException e) {
-        return new ErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleThrowable(final Throwable e) {
         return new ErrorResponse(e.getMessage());
     }
 

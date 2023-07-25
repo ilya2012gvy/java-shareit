@@ -3,14 +3,18 @@ package ru.practicum.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 
 @Slf4j
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
+@Validated
 public class ItemController {
     private final ItemClient client;
 
@@ -22,16 +26,16 @@ public class ItemController {
 
     @GetMapping
     public ResponseEntity<Object> getAllItems(@RequestHeader("X-Sharer-User-Id") long id,
-                                              @RequestParam(defaultValue = "0") Integer from,
-                                              @RequestParam(defaultValue = "10") Integer size) {
+                                              @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                              @Positive @RequestParam(defaultValue = "10") Integer size) {
         log.info("Получение списка всех вещей пользователя");
         return client.getAllItems(id, from, size);
     }
 
     @GetMapping("/search")
     public ResponseEntity<Object> searchByText(@RequestParam String text, @RequestHeader("X-Sharer-User-Id") long user,
-                                               @RequestParam(defaultValue = "0") Integer from,
-                                               @RequestParam(defaultValue = "10") Integer size) {
+                                               @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                               @Positive @RequestParam(defaultValue = "10") Integer size) {
         log.info("Поиск предмет по запросу: {}", text);
         return client.searchByText(text, user, from, size);
     }

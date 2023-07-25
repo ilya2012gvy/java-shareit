@@ -29,7 +29,7 @@ public class ItemClient extends BaseClient {
         return get("/" + id, user);
     }
 
-    public ResponseEntity<Object> getAllItems(long id, int from, int size) {
+    public ResponseEntity<Object> getAllItems(long id, Integer from, Integer size) {
         Map<String, Object> parameters = Map.of(
                 "from", from,
                 "size", size
@@ -38,11 +38,11 @@ public class ItemClient extends BaseClient {
         return get("?from={from}&size={size}", id, parameters);
     }
 
-    public ResponseEntity<Object> searchByText(String text, long user, int from, int size) {
+    public ResponseEntity<Object> searchByText(String text, long user, Integer from, Integer size) {
         Map<String, Object> parameters = Map.of(
+                "text", text,
                 "from", from,
-                "size", size,
-                "text", text
+                "size", size
         );
 
         return get("/search?text={text}&from={from}&size={size}", user, parameters);
@@ -53,7 +53,7 @@ public class ItemClient extends BaseClient {
     }
 
     public ResponseEntity<Object> updateItem(ItemDto item, long id, long user) {
-        return patch("/" + item, id, user);
+        return patch("/" + id, user, item);
     }
 
     public void deleteItem(long id) {

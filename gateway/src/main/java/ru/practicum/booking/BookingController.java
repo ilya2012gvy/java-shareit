@@ -3,14 +3,18 @@ package ru.practicum.booking;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 
 @Slf4j
 @RestController
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
+@Validated
 public class BookingController {
     private final BookingClient client;
 
@@ -35,18 +39,18 @@ public class BookingController {
     }
 
     @GetMapping("/owner")
-    public ResponseEntity<Object> getOwnerBookings(@RequestParam(defaultValue = "ALL") String state,
-                                                   @RequestHeader("X-Sharer-User-Id") long id,
-                                                   @RequestParam(defaultValue = "0") Integer from,
-                                                   @RequestParam(defaultValue = "10") Integer size) {
-        return client.getOwnerBookings(state, id, from, size);
+    public ResponseEntity<Object> getOwnerBookings(@RequestHeader("X-Sharer-User-Id") long id,
+                                                   @RequestParam(name = "state", defaultValue = "ALL") String state,
+                                                   @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                                   @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
+        return client.getOwnerBookings(id, state, from, size);
     }
 
     @GetMapping
-    public ResponseEntity<Object> getBookingBookings(@RequestParam(defaultValue = "ALL") String state,
-                                                     @RequestHeader("X-Sharer-User-Id") long id,
-                                                     @RequestParam(defaultValue = "0") Integer from,
-                                                     @RequestParam(defaultValue = "10") Integer size) {
-        return client.getBookingBookings(state, id, from, size);
+    public ResponseEntity<Object> getBookingBookings(@RequestHeader("X-Sharer-User-Id") long id,
+                                                     @RequestParam(name = "state", defaultValue = "ALL") String state,
+                                                     @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                                     @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
+        return client.getBookingBookings(id, state, from, size);
     }
 }

@@ -1,6 +1,5 @@
 package ru.practicum.item.mapper;
 
-
 import ru.practicum.item.dto.ItemDto;
 import ru.practicum.item.model.Item;
 import ru.practicum.request.dto.ItemRequestDto;
@@ -27,7 +26,7 @@ public interface ItemMapper {
 
     static Item toItem(ItemDto item, User user, ItemRequestDto request) {
         return Item.builder()
-                .id(item.getId() != null ? item.getId() : 0)
+                .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
                 .owner(user)

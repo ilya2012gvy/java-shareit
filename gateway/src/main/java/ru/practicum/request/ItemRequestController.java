@@ -3,14 +3,18 @@ package ru.practicum.request;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/requests")
+@Validated
 public class ItemRequestController {
     private final ItemRequestClient client;
 
@@ -22,8 +26,8 @@ public class ItemRequestController {
 
     @GetMapping("/all")
     public ResponseEntity<Object> getAllItemRequests(@RequestHeader("X-Sharer-User-Id") long id,
-                                                     @RequestParam(defaultValue = "0") int from,
-                                                     @RequestParam(defaultValue = "10") int size) {
+                                                     @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") int from,
+                                                     @Positive @RequestParam(name = "size", defaultValue = "10") int size) {
         log.info("Все запросы по id: {}", id);
         return client.getAllItemRequests(id, from, size);
     }

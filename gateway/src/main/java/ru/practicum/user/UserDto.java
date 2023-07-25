@@ -15,6 +15,7 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDto {
+    private Long id;
     @NotBlank(message = "Отсутствует название")
     @NotNull
     private String name;
